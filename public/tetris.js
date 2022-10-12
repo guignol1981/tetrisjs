@@ -1,4 +1,4 @@
-import { RandomTetrinosFactory } from './src/tetrinos.js';
+import { RandomTetrinosFactory } from '../src/tetrinos.js';
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -128,8 +128,6 @@ class Tetris {
             }
         }
 
-        console.table(this.bricks);
-
         return grid;
     }
 
@@ -143,9 +141,9 @@ class Tetris {
                 this.mergeTetrino();
                 this.activeTetrino = RandomTetrinosFactory();
             }
-
+            this.clearRows();
             this.paint();
-        }, 1000);
+        }, 500);
     }
 
     canMove(direction) {
@@ -196,6 +194,17 @@ class Tetris {
                 ] = square;
             });
         });
+    }
+
+    clearRows() {
+        this.bricks = this.bricks.filter(
+            (row, rowIndex) => !row.every((s) => s)
+        );
+
+        const length = this.bricks.length;
+        for (let index = 0; index < 20 - length; index++) {
+            this.bricks.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        }
     }
 
     paint() {
