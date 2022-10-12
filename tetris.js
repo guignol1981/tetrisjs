@@ -48,7 +48,7 @@ class Tetris {
         for (let i = 0; i < this.activeTetrino.height; i++) {
             grid.push([]);
 
-            for (let j = 0; this.activeTetrino.width < j; j++) {
+            for (let j = 0; j < this.activeTetrino.width; j++) {
                 if (
                     typeof this.bricks[this.activeTetrino.position.y + i] ===
                         'undefined' ||
@@ -56,9 +56,9 @@ class Tetris {
                         this.activeTetrino.position.x - 1 + j
                     ] === 'undefined'
                 ) {
-                    grid[j].push(1);
+                    grid[i].push(1);
                 } else {
-                    grid[j].push(
+                    grid[i].push(
                         this.bricks[this.activeTetrino.position.y + i][
                             this.activeTetrino.position.x - 1 + j
                         ]
@@ -78,7 +78,7 @@ class Tetris {
         for (let i = 0; i < this.activeTetrino.height; i++) {
             grid.push([]);
 
-            for (let j = 0; this.activeTetrino.width < j; j++) {
+            for (let j = 0; j < this.activeTetrino.width; j++) {
                 if (
                     typeof this.bricks[this.activeTetrino.position.y + i] ===
                         'undefined' ||
@@ -86,9 +86,9 @@ class Tetris {
                         this.activeTetrino.position.x + 1 + j
                     ] === 'undefined'
                 ) {
-                    grid[j].push(1);
+                    grid[i].push(1);
                 } else {
-                    grid[j].push(
+                    grid[i].push(
                         this.bricks[this.activeTetrino.position.y + i][
                             this.activeTetrino.position.x + 1 + j
                         ]
@@ -177,21 +177,21 @@ class Tetris {
     mergeTetrino() {
         if (!this.activeTetrino) return;
 
-        this.activeTetrino.currentShape.forEach((line, lineIndex) => {
-            line.forEach((square, squareIndex) => {
+        this.activeTetrino.currentShape.forEach((row, rowIndex) => {
+            row.forEach((square, squareIndex) => {
                 if (
                     !square ||
                     typeof this.bricks[
-                        this.activeTetrino.position.y + lineIndex
+                        this.activeTetrino.position.y + rowIndex
                     ] === 'undefined' ||
                     typeof this.bricks[
-                        this.activeTetrino.position.y + lineIndex
+                        this.activeTetrino.position.y + rowIndex
                     ][this.activeTetrino.position.x + squareIndex] ===
                         'undefined'
                 )
                     return;
 
-                this.bricks[this.activeTetrino.position.y + lineIndex][
+                this.bricks[this.activeTetrino.position.y + rowIndex][
                     this.activeTetrino.position.x + squareIndex
                 ] = square;
             });
@@ -203,8 +203,24 @@ class Tetris {
         drawGrid();
         drawTetrinos(this.activeTetrino);
         drawBricks(this.bricks);
+        debug(this.bricks);
     }
 }
+
+const debug = (bricks) => {
+    ctx.fillStyle = 'black';
+    ctx.textAlign = 'center';
+
+    bricks.forEach((row, rowIndex) => {
+        row.forEach((square, squareIndex) => {
+            ctx.fillText(
+                square.toString(),
+                squareIndex * (canvas.width / 10),
+                rowIndex * (canvas.height / 20)
+            );
+        });
+    });
+};
 
 const drawBricks = (bricks) => {
     ctx.fillStyle = 'red';
@@ -257,7 +273,7 @@ const drawTetrinos = (tetrino) => {
 
 const drawGrid = () => {
     ctx.strokeStyle = 'red';
-    ctx.lineWidth = 1;
+    ctx.rowWidth = 1;
 
     for (let i = 1; i < 10; i++) {
         ctx.beginPath();
