@@ -40,67 +40,7 @@ class Tetris {
         });
     }
 
-    get activeTetrinoLeftGrid() {
-        if (!this.activeTetrino) return;
-
-        const grid = [];
-
-        for (let i = 0; i < this.activeTetrino.height; i++) {
-            grid.push([]);
-
-            for (let j = 0; j < this.activeTetrino.width; j++) {
-                if (
-                    typeof this.bricks[this.activeTetrino.position.y + i] ===
-                        'undefined' ||
-                    typeof this.bricks[this.activeTetrino.position.y + i][
-                        this.activeTetrino.position.x - 1 + j
-                    ] === 'undefined'
-                ) {
-                    grid[i].push(1);
-                } else {
-                    grid[i].push(
-                        this.bricks[this.activeTetrino.position.y + i][
-                            this.activeTetrino.position.x - 1 + j
-                        ]
-                    );
-                }
-            }
-        }
-
-        return grid;
-    }
-
-    get activeTetrinoRightGrid() {
-        if (!this.activeTetrino) return;
-
-        const grid = [];
-
-        for (let i = 0; i < this.activeTetrino.height; i++) {
-            grid.push([]);
-
-            for (let j = 0; j < this.activeTetrino.width; j++) {
-                if (
-                    typeof this.bricks[this.activeTetrino.position.y + i] ===
-                        'undefined' ||
-                    typeof this.bricks[this.activeTetrino.position.y + i][
-                        this.activeTetrino.position.x + 1 + j
-                    ] === 'undefined'
-                ) {
-                    grid[i].push(1);
-                } else {
-                    grid[i].push(
-                        this.bricks[this.activeTetrino.position.y + i][
-                            this.activeTetrino.position.x + 1 + j
-                        ]
-                    );
-                }
-            }
-        }
-
-        return grid;
-    }
-
-    get activeTetrinoDownGrid() {
+    nextGrid(vector) {
         if (!this.activeTetrino) return;
 
         const grid = [];
@@ -111,18 +51,19 @@ class Tetris {
             for (let j = 0; j < this.activeTetrino.width; j++) {
                 if (
                     typeof this.bricks[
-                        this.activeTetrino.position.y + 1 + i
+                        this.activeTetrino.position.y + vector.y + i
                     ] === 'undefined' ||
-                    typeof this.bricks[this.activeTetrino.position.y + 1 + i][
-                        this.activeTetrino.position.x + j
-                    ] === 'undefined'
+                    typeof this.bricks[
+                        this.activeTetrino.position.y + vector.y + i
+                    ][this.activeTetrino.position.x + vector.x + j] ===
+                        'undefined'
                 ) {
                     grid[i].push(1);
                 } else {
                     grid[i].push(
-                        this.bricks[this.activeTetrino.position.y + 1 + i][
-                            this.activeTetrino.position.x + j
-                        ]
+                        this.bricks[
+                            this.activeTetrino.position.y + vector.y + i
+                        ][this.activeTetrino.position.x + vector.x + j]
                     );
                 }
             }
@@ -154,17 +95,18 @@ class Tetris {
                 switch (direction) {
                     case 'left':
                         return (
-                            this.activeTetrinoLeftGrid[rowIndex][colIndex] &&
-                            col
+                            this.nextGrid({ x: -1, y: 0 })[rowIndex][
+                                colIndex
+                            ] && col
                         );
                     case 'right':
                         return (
-                            this.activeTetrinoRightGrid[rowIndex][colIndex] &&
+                            this.nextGrid({ x: 1, y: 0 })[rowIndex][colIndex] &&
                             col
                         );
                     case 'down':
                         return (
-                            this.activeTetrinoDownGrid[rowIndex][colIndex] &&
+                            this.nextGrid({ x: 0, y: 1 })[rowIndex][colIndex] &&
                             col
                         );
                 }
