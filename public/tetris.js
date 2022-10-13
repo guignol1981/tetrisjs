@@ -1,10 +1,12 @@
 import { RandomTetrinosFactory } from '../src/tetrinos.js';
+import { clear, drawGrid, drawstack, drawTetrino } from './drawing.js';
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-const GRID_HEIGHT = GRID_HEIGHT;
-const GRID_WIDTH = GRID_WIDTH;
+const GRID_HEIGHT = 20;
+const GRID_WIDTH = 10;
+
 class Tetris {
     _nextTetrino = null;
     activeTetrino = null;
@@ -17,9 +19,9 @@ class Tetris {
     }
 
     get nextTetrino() {
-        const stamp = this.nextTetrino;
+        const stamp = this._nextTetrino;
 
-        this.nextTetrino = RandomTetrinosFactory();
+        this._nextTetrino = RandomTetrinosFactory();
 
         return stamp;
     }
@@ -28,12 +30,13 @@ class Tetris {
         this.activeTetrino = this.nextTetrino;
 
         setInterval(() => {
-            if (this.canMove('down')) {
+            if (this.canMove({ x: 0, y: 1 })) {
                 this.activeTetrino.moveDown();
             } else {
-                this.mergeTetrino();
-                this.activeTetrino = this.nextTetrino();
+                this.mergeTetrinoToStack();
+                this.activeTetrino = this.nextTetrino;
             }
+
             this.clearRows();
             this.paint();
         }, this.tickInMilliseconds);
@@ -71,33 +74,18 @@ class Tetris {
         return grid;
     }
 
-    canMove(direction) {
+    canMove(vector) {
         if (!this.activeTetrino) return;
 
-        return !this.activeTetrino.currentShape.some((row, rowIndex) => {
-            return row.some((col, colIndex) => {
-                let vector;
-
-                switch (direction) {
-                    case 'left':
-                        vector = { x: -1, y: 0 };
-                        break;
-                    case 'right':
-                        vector = { x: 1, y: 0 };
-                        break;
-                    case 'down':
-                        vector = { x: 0, y: 1 };
-                        break;
-                }
-
-                return (
-                    this.getNextGrid({ x: -1, y: 0 })[rowIndex][colIndex] && col
-                );
-            });
-        });
+        return !this.activeTetrino.currentShape.some((row, rowIndex) =>
+            row.some(
+                (col, colIndex) =>
+                    this.getNextGrid(vector)[rowIndex][colIndex] && col
+            )
+        );
     }
 
-    mergeTetrino() {
+    mergeTetrinoToStack() {
         if (!this.activeTetrino) return;
 
         this.activeTetrino.currentShape.forEach((row, rowIndex) => {
@@ -155,15 +143,15 @@ class Tetris {
                     this.activeTetrino.rotate();
                     break;
                 case 'ArrowLeft':
-                    if (!this.canMove('left')) return;
+                    if (!this.canMove({ x: -1, y: 0 })) return;
                     this.activeTetrino.moveLeft();
                     break;
                 case 'ArrowRight':
-                    if (!this.canMove('right')) return;
+                    if (!this.canMove({ x: 1, y: 0 })) return;
                     this.activeTetrino.moveRight();
                     break;
                 case 'ArrowDown':
-                    if (!this.canMove('down')) return;
+                    if (!this.canMove({ x: 0, y: 1 })) return;
                     this.activeTetrino.moveDown();
                     break;
             }
@@ -173,10 +161,10 @@ class Tetris {
     }
 
     paint() {
-        clear();
-        drawGrid();
-        drawTetrinos(this.activeTetrino);
-        drawstack(this.stack);
+        clear(canvas);
+        drawGrid(canvas, GRID_WIDTH, GRID_HEIGHT);
+        drawTetrino(canvas, this.activeTetrino, GRID_WIDTH, GRID_HEIGHT);
+        drawstack(canvas, this.stack, GRID_WIDTH, GRID_HEIGHT);
         debug(this.stack);
     }
 }
@@ -194,82 +182,6 @@ const debug = (stack) => {
             );
         });
     });
-};
-
-const drawstack = (stack) => {
-    ctx.fillStyle = 'red';
-    ctx.beginPath();
-
-    stack.forEach((row, rowIndex) => {
-        row.forEach((col, colIndex) => {
-            if (!col) return;
-
-            ctx.rect(
-                colIndex * (canvas.width / GRID_WIDTH),
-                rowIndex * (canvas.height / GRID_HEIGHT),
-                canvas.width / GRID_WIDTH,
-                canvas.height / GRID_HEIGHT
-            );
-
-            ctx.fill();
-        });
-    });
-
-    ctx.closePath();
-};
-
-const drawTetrinos = (tetrino) => {
-    if (!tetrino) return;
-
-    ctx.fillStyle = tetrino.color;
-
-    ctx.beginPath();
-
-    tetrino.currentShape.forEach((row, rowIndex) => {
-        row.forEach((col, colIndex) => {
-            if (!!col) {
-                ctx.rect(
-                    (colIndex * canvas.width) / GRID_WIDTH +
-                        (tetrino.position.x * canvas.width) / GRID_WIDTH,
-                    (rowIndex * canvas.height) / GRID_HEIGHT +
-                        (tetrino.position.y * canvas.height) / GRID_HEIGHT,
-                    canvas.width / GRID_WIDTH,
-                    canvas.height / GRID_HEIGHT
-                );
-
-                ctx.fill();
-            }
-        });
-    });
-
-    ctx.closePath();
-};
-
-const drawGrid = () => {
-    ctx.strokeStyle = 'red';
-    ctx.rowWidth = 1;
-
-    for (let i = 1; i < GRID_WIDTH; i++) {
-        ctx.beginPath();
-        ctx.moveTo((i * canvas.width) / GRID_WIDTH, 0);
-        ctx.lineTo((i * canvas.width) / GRID_WIDTH, canvas.height);
-
-        ctx.stroke();
-        ctx.closePath();
-    }
-
-    for (let i = 1; i < GRID_HEIGHT; i++) {
-        ctx.beginPath();
-        ctx.moveTo(0, (i * canvas.height) / GRID_HEIGHT);
-        ctx.lineTo(canvas.width, (i * canvas.height) / GRID_HEIGHT);
-
-        ctx.stroke();
-        ctx.closePath();
-    }
-};
-
-const clear = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 };
 
 const tetris = new Tetris();
