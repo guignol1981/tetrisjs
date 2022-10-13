@@ -1,4 +1,4 @@
-import { RandomTetrinosFactory } from '../src/tetrinos.js';
+import { RandomTetrinoFactory } from '../src/tetrino.js';
 import { clear, drawGrid, drawstack, drawTetrino } from './drawing.js';
 
 const canvas = document.getElementById('canvas');
@@ -21,7 +21,7 @@ class Tetris {
     get nextTetrino() {
         const stamp = this._nextTetrino;
 
-        this._nextTetrino = RandomTetrinosFactory();
+        this._nextTetrino = RandomTetrinoFactory();
 
         return stamp;
     }

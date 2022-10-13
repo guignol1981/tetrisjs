@@ -1,4 +1,4 @@
-class Tetrinos {
+class Tetrino {
     constructor(shapes, rotation, color) {
         this.shapes = shapes;
         this.rotation = rotation;
@@ -35,7 +35,7 @@ class Tetrinos {
     }
 }
 
-const RandomTetrinosFactory = () => {
+const RandomTetrinoFactory = () => {
     const params = [
         {
             shapes: {
@@ -231,7 +231,7 @@ const RandomTetrinosFactory = () => {
 
     const param = params[Math.floor(Math.random() * params.length) + 0];
 
-    return new Tetrinos(param.shapes, param.rotation, param.color);
+    return new Tetrino(param.shapes, param.rotation, param.color);
 };
 
-export { RandomTetrinosFactory };
+export { RandomTetrinoFactory };
