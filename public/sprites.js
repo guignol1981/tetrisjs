@@ -1,0 +1,3 @@
+const spritesMap = {};
+
+const initSprites = () => {};

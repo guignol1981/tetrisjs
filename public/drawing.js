@@ -1,3 +1,5 @@
+const sprites = {};
+const initSprites = async () => {};
 const drawstack = (canvas, stack, gridWidth, gridHeight) => {
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = 'red';
@@ -18,7 +20,7 @@ const drawstack = (canvas, stack, gridWidth, gridHeight) => {
     });
 };
 
-const drawTetrino = (canvas, tetrino, gridWidth, gridHeight) => {
+const drawTetrino = (canvas, tetrino, gridWidth, gridHeight, image) => {
     if (!tetrino) return;
 
     const ctx = canvas.getContext('2d');
@@ -28,7 +30,8 @@ const drawTetrino = (canvas, tetrino, gridWidth, gridHeight) => {
     tetrino.currentShape.forEach((row, rowIndex) => {
         row.forEach((col, colIndex) => {
             if (!!col) {
-                ctx.rect(
+                ctx.drawImage(
+                    image,
                     (colIndex * canvas.width) / gridWidth +
                         (tetrino.position.x * canvas.width) / gridWidth,
                     (rowIndex * canvas.height) / gridHeight +
@@ -36,8 +39,6 @@ const drawTetrino = (canvas, tetrino, gridWidth, gridHeight) => {
                     canvas.width / gridWidth,
                     canvas.height / gridHeight
                 );
-
-                ctx.fill();
             }
         });
     });

@@ -1,4 +1,4 @@
-import { RandomTetrinoFactory } from '../src/tetrino.js';
+import { RandomTetrinoFactory } from '.tetrino.js';
 import { clear, drawGrid, drawstack, drawTetrino } from './drawing.js';
 
 const canvas = document.getElementById('canvas');
@@ -6,6 +6,7 @@ const ctx = canvas.getContext('2d');
 
 const GRID_HEIGHT = 20;
 const GRID_WIDTH = 10;
+const image = new Image();
 
 class Tetris {
     _nextTetrino = null;
@@ -163,9 +164,9 @@ class Tetris {
     paint() {
         clear(canvas);
         drawGrid(canvas, GRID_WIDTH, GRID_HEIGHT);
-        drawTetrino(canvas, this.activeTetrino, GRID_WIDTH, GRID_HEIGHT);
+        drawTetrino(canvas, this.activeTetrino, GRID_WIDTH, GRID_HEIGHT, image);
         drawstack(canvas, this.stack, GRID_WIDTH, GRID_HEIGHT);
-        debug(this.stack);
+        // debug(this.stack);
     }
 }
 
@@ -184,5 +185,19 @@ const debug = (stack) => {
     });
 };
 
-const tetris = new Tetris();
-tetris.start();
+const loadImages = () => {
+    return new Promise((res) => {
+        image.onload = () => {
+            res(image);
+        };
+
+        image.src = './yellow_bricks.png';
+    });
+};
+
+(async () => {
+    await loadImages();
+
+    const tetris = new Tetris();
+    tetris.start();
+})();
