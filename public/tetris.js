@@ -1,12 +1,12 @@
-import { RandomTetrinoFactory } from '.tetrino.js';
-import { clear, drawGrid, drawstack, drawTetrino } from './drawing.js';
+import { RandomTetrinoFactory } from './tetrino.js';
+import { drawStack, drawTetrino, initSprites } from './drawing.js';
 
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+const backgroundCanvas = document.getElementById('backgroundCanvas');
+const bricksCanvas = document.getElementById('bricksCanvas');
+const stackCanvas = document.getElementById('stackCanvas');
 
 const GRID_HEIGHT = 20;
 const GRID_WIDTH = 10;
-const image = new Image();
 
 class Tetris {
     _nextTetrino = null;
@@ -15,8 +15,9 @@ class Tetris {
     tickInMilliseconds = 500;
 
     constructor() {
-        this.initGrid();
+        this.initStack();
         this.initControls();
+        this._nextTetrino = RandomTetrinoFactory();
     }
 
     get nextTetrino() {
@@ -29,23 +30,15 @@ class Tetris {
 
     start() {
         this.activeTetrino = this.nextTetrino;
+        this.paintTetrino();
 
         setInterval(() => {
-            if (this.canMove({ x: 0, y: 1 })) {
-                this.activeTetrino.moveDown();
-            } else {
-                this.mergeTetrinoToStack();
-                this.activeTetrino = this.nextTetrino;
-            }
-
-            this.clearRows();
-            this.paint();
+            this.moveTetrino({ x: 0, y: 1 });
+            // debug(this.stack);
         }, this.tickInMilliseconds);
     }
 
     getNextGrid(vector) {
-        if (!this.activeTetrino) return;
-
         const grid = [];
 
         for (let i = 0; i < this.activeTetrino.height; i++) {
@@ -75,20 +68,33 @@ class Tetris {
         return grid;
     }
 
-    canMove(vector) {
-        if (!this.activeTetrino) return;
-
-        return !this.activeTetrino.currentShape.some((row, rowIndex) =>
-            row.some(
-                (col, colIndex) =>
-                    this.getNextGrid(vector)[rowIndex][colIndex] && col
+    moveTetrino(vector) {
+        if (
+            this.activeTetrino.currentShape.some((row, rowIndex) =>
+                row.some(
+                    (col, colIndex) =>
+                        this.getNextGrid(vector)[rowIndex][colIndex] && col
+                )
             )
-        );
+        ) {
+            if (vector.y === 1) {
+                this.mergeTetrinoToStack();
+            }
+            return -1;
+        }
+
+        this.activeTetrino.move(vector);
+        this.paintTetrino();
+
+        return 1;
+    }
+
+    rotateTetrino() {
+        this.activeTetrino.rotate();
+        this.paintTetrino();
     }
 
     mergeTetrinoToStack() {
-        if (!this.activeTetrino) return;
-
         this.activeTetrino.currentShape.forEach((row, rowIndex) => {
             row.forEach((col, colIndex) => {
                 if (
@@ -107,14 +113,19 @@ class Tetris {
                 ] = col;
             });
         });
+
+        this.activeTetrino = this.nextTetrino;
+        this.clearRows();
+        this.paintStack();
+        this.paintTetrino();
     }
 
     clearRows() {
-        this.stack = this.stack.filter((row) => !row.every((s) => s));
+        this.stack = this.stack.filter((row) => !row.every((s) => s === 1));
 
         const stackLength = this.stack.length;
 
-        for (let index = 0; index < GRID_HEIGHT - stackLength; index++) {
+        for (let i = 0; i < GRID_HEIGHT - stackLength; i++) {
             const newRow = [];
 
             for (let j = 0; j < GRID_WIDTH; j++) {
@@ -125,7 +136,7 @@ class Tetris {
         }
     }
 
-    initGrid() {
+    initStack() {
         for (let i = 0; i < GRID_HEIGHT; i++) {
             this.stack.push([]);
 
@@ -136,68 +147,65 @@ class Tetris {
     }
 
     initControls() {
-        window.addEventListener('keydown', (e) => {
+        addEventListener('keydown', (e) => {
             if (!this.activeTetrino) return;
+            e.preventDefault();
 
             switch (e.key) {
                 case ' ':
-                    this.activeTetrino.rotate();
+                    this.rotateTetrino();
                     break;
                 case 'ArrowLeft':
-                    if (!this.canMove({ x: -1, y: 0 })) return;
-                    this.activeTetrino.moveLeft();
+                    this.moveTetrino({ x: -1, y: 0 });
                     break;
                 case 'ArrowRight':
-                    if (!this.canMove({ x: 1, y: 0 })) return;
-                    this.activeTetrino.moveRight();
+                    this.moveTetrino({ x: 1, y: 0 });
                     break;
                 case 'ArrowDown':
-                    if (!this.canMove({ x: 0, y: 1 })) return;
-                    this.activeTetrino.moveDown();
+                    this.moveTetrino({ x: 0, y: 1 });
+                    break;
+                case 'ArrowUp':
+                    let fall = true;
+                    while (fall) {
+                        fall = this.moveTetrino({ x: 0, y: 1 }) === 1;
+                    }
                     break;
             }
-
-            this.paint();
         });
     }
 
-    paint() {
-        clear(canvas);
-        drawGrid(canvas, GRID_WIDTH, GRID_HEIGHT);
-        drawTetrino(canvas, this.activeTetrino, GRID_WIDTH, GRID_HEIGHT, image);
-        drawstack(canvas, this.stack, GRID_WIDTH, GRID_HEIGHT);
-        // debug(this.stack);
+    paintTetrino() {
+        drawTetrino(bricksCanvas, this.activeTetrino, GRID_WIDTH, GRID_HEIGHT);
+    }
+
+    paintStack() {
+        drawStack(stackCanvas, [...this.stack], GRID_WIDTH, GRID_HEIGHT);
     }
 }
 
 const debug = (stack) => {
+    const ctx = stackCanvas.getContext('2d');
+
     ctx.fillStyle = 'black';
     ctx.textAlign = 'center';
+
+    console.table(stack);
 
     stack.forEach((row, rowIndex) => {
         row.forEach((col, colIndex) => {
             ctx.fillText(
                 col.toString(),
-                colIndex * (canvas.width / GRID_WIDTH),
-                rowIndex * (canvas.height / GRID_HEIGHT)
+                colIndex * (stackCanvas.width / GRID_WIDTH),
+                rowIndex * (stackCanvas.height / GRID_HEIGHT)
             );
         });
     });
 };
 
-const loadImages = () => {
-    return new Promise((res) => {
-        image.onload = () => {
-            res(image);
-        };
-
-        image.src = './yellow_bricks.png';
-    });
-};
-
 (async () => {
-    await loadImages();
+    await initSprites(backgroundCanvas, GRID_WIDTH, GRID_HEIGHT);
 
     const tetris = new Tetris();
+
     tetris.start();
 })();

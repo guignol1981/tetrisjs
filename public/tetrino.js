@@ -1,8 +1,8 @@
 class Tetrino {
-    constructor(shapes, rotation, color) {
+    constructor(shapes, rotation, sprite) {
         this.shapes = shapes;
         this.rotation = rotation;
-        this.color = color;
+        this.sprite = sprite;
         this.position = { x: 0, y: 0 };
     }
 
@@ -22,21 +22,90 @@ class Tetrino {
         this.rotation = (this.rotation + 1) % 4;
     }
 
-    moveLeft() {
-        this.position.x--;
-    }
-
-    moveRight() {
-        this.position.x++;
-    }
-
-    moveDown() {
-        this.position.y++;
+    move(vector) {
+        this.position.x += vector.x;
+        this.position.y += vector.y;
     }
 }
 
 const RandomTetrinoFactory = () => {
     const params = [
+        // {
+        //     shapes: {
+        //         0: [
+        //             [0, 1],
+        //             [0, 1],
+        //         ],
+        //         1: [
+        //             [0, 1],
+        //             [0, 1],
+        //         ],
+        //         2: [
+        //             [0, 1],
+        //             [0, 1],
+        //         ],
+        //         3: [
+        //             [0, 1],
+        //             [0, 1],
+        //         ],
+        //     },
+        //     rotation: 1,
+        //     sprite: 'yellowBricks',
+        // },
+        // {
+        //     shapes: {
+        //         0: [
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //         ],
+        //         1: [
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //         ],
+        //         2: [
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //         ],
+        //         3: [
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //             [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+        //             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        //         ],
+        //     },
+        //     rotation: 1,
+        //     sprite: 'yellowBricks',
+        // },
         {
             shapes: {
                 0: [
@@ -65,7 +134,7 @@ const RandomTetrinoFactory = () => {
                 ],
             },
             rotation: 1,
-            color: 'blue',
+            sprite: 'yellowBricks',
         },
         {
             shapes: {
@@ -95,7 +164,7 @@ const RandomTetrinoFactory = () => {
                 ],
             },
             rotation: 0,
-            color: 'purple',
+            sprite: 'yellowBricks',
         },
         {
             shapes: {
@@ -121,7 +190,7 @@ const RandomTetrinoFactory = () => {
                 ],
             },
             rotation: 0,
-            color: 'red',
+            sprite: 'yellowBricks',
         },
         {
             shapes: {
@@ -147,7 +216,7 @@ const RandomTetrinoFactory = () => {
                 ],
             },
             rotation: 0,
-            color: 'green',
+            sprite: 'blueBricks',
         },
         {
             shapes: {
@@ -173,7 +242,7 @@ const RandomTetrinoFactory = () => {
                 ],
             },
             rotation: 0,
-            color: 'yellow',
+            sprite: 'purpleBricks',
         },
         {
             shapes: {
@@ -199,7 +268,7 @@ const RandomTetrinoFactory = () => {
                 ],
             },
             rotation: 0,
-            color: 'cyan',
+            sprite: 'redBricks',
         },
         {
             shapes: {
@@ -225,13 +294,13 @@ const RandomTetrinoFactory = () => {
                 ],
             },
             rotation: 0,
-            color: 'orange',
+            sprite: 'greenBricks',
         },
     ];
 
     const param = params[Math.floor(Math.random() * params.length) + 0];
 
-    return new Tetrino(param.shapes, param.rotation, param.color);
+    return new Tetrino(param.shapes, param.rotation, param.sprite);
 };
 
 export { RandomTetrinoFactory };
