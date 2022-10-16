@@ -29,6 +29,31 @@ class Tetris {
         return stamp;
     }
 
+    get activeTetrinoShadowOffset() {
+        let offset = 1;
+        let canFall = true;
+        const currentShape = [...this.activeTetrino.currentShape];
+
+        while (canFall) {
+            if (
+                currentShape.some((row, rowIndex) =>
+                    row.some(
+                        (col, colIndex) =>
+                            this.getNextGrid({ x: 0, y: 1 }, offset)[rowIndex][
+                                colIndex
+                            ] && col
+                    )
+                )
+            ) {
+                canFall = false;
+            } else {
+                offset++;
+            }
+        }
+
+        return offset;
+    }
+
     start() {
         this.activeTetrino = this.nextTetrino;
         this.paintTetrino();
@@ -48,7 +73,7 @@ class Tetris {
         this.start();
     }
 
-    getNextGrid(vector) {
+    getNextGrid(vector, offset = 0) {
         const grid = [];
 
         for (let i = 0; i < this.activeTetrino.height; i++) {
@@ -57,10 +82,10 @@ class Tetris {
             for (let j = 0; j < this.activeTetrino.width; j++) {
                 if (
                     typeof this.stack[
-                        this.activeTetrino.position.y + vector.y + i
+                        this.activeTetrino.position.y + vector.y + offset + i
                     ] === 'undefined' ||
                     typeof this.stack[
-                        this.activeTetrino.position.y + vector.y + i
+                        this.activeTetrino.position.y + vector.y + offset + i
                     ][this.activeTetrino.position.x + vector.x + j] ===
                         'undefined'
                 ) {
@@ -68,7 +93,10 @@ class Tetris {
                 } else {
                     grid[i].push(
                         this.stack[
-                            this.activeTetrino.position.y + vector.y + i
+                            this.activeTetrino.position.y +
+                                vector.y +
+                                offset +
+                                i
                         ][this.activeTetrino.position.x + vector.x + j]
                     );
                 }
@@ -178,7 +206,7 @@ class Tetris {
             e.preventDefault();
 
             switch (e.key) {
-                case 'ArrowUp':
+                case ' ':
                     this.rotateTetrino();
                     break;
                 case 'ArrowLeft':
@@ -190,7 +218,7 @@ class Tetris {
                 case 'ArrowDown':
                     this.moveTetrino({ x: 0, y: 1 });
                     break;
-                case ' ':
+                case 'ArrowUp':
                     const interval = setInterval(() => {
                         let fall = this.moveTetrino({ x: 0, y: 1 }) === 1;
 
@@ -203,7 +231,13 @@ class Tetris {
     }
 
     paintTetrino() {
-        drawTetrino(bricksCanvas, this.activeTetrino, GRID_WIDTH, GRID_HEIGHT);
+        drawTetrino(
+            bricksCanvas,
+            this.activeTetrino,
+            this.activeTetrinoShadowOffset,
+            GRID_WIDTH,
+            GRID_HEIGHT
+        );
     }
 
     paintStack() {

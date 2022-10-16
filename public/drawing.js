@@ -48,7 +48,7 @@ const initSprites = async (backgroundCanvas, gridWidth, gridHeight) => {
                         res();
                     };
 
-                    s.image.src = `./${s.spriteName}`;
+                    s.image.src = `./sprites/${s.spriteName}`;
                 })
         )
     );
@@ -94,7 +94,7 @@ const drawStack = (canvas, stack, gridWidth, gridHeight) => {
     });
 };
 
-const drawTetrino = (canvas, tetrino, gridWidth, gridHeight) => {
+const drawTetrino = (canvas, tetrino, shadowOffset, gridWidth, gridHeight) => {
     const ctx = canvas.getContext('2d');
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -109,6 +109,16 @@ const drawTetrino = (canvas, tetrino, gridWidth, gridHeight) => {
                         (tetrino.position.x * canvas.width) / gridWidth,
                     (rowIndex * canvas.height) / gridHeight +
                         (tetrino.position.y * canvas.height) / gridHeight,
+                    canvas.width / gridWidth,
+                    canvas.height / gridHeight
+                );
+                ctx.drawImage(
+                    sprites.shadowBricks.image,
+                    (colIndex * canvas.width) / gridWidth +
+                        (tetrino.position.x * canvas.width) / gridWidth,
+                    (rowIndex * canvas.height) / gridHeight +
+                        (tetrino.position.y * canvas.height) / gridHeight +
+                        (shadowOffset * canvas.height) / gridHeight,
                     canvas.width / gridWidth,
                     canvas.height / gridHeight
                 );

@@ -303,4 +303,4 @@ const RandomTetrinoFactory = () => {
     return new Tetrino(param.shapes, param.rotation, param.sprite);
 };
 
-export { RandomTetrinoFactory };
+export { RandomTetrinoFactory, Tetrino };
