@@ -7,6 +7,10 @@ const sprites = {
         spriteName: 'stack_bricks.png',
         image: new Image(),
     },
+    shadowBricks: {
+        spriteName: 'shadow_bricks.png',
+        image: new Image(),
+    },
     yellowBricks: {
         spriteName: 'yellow_bricks.png',
         image: new Image(),
@@ -73,8 +77,6 @@ const drawStack = (canvas, stack, gridWidth, gridHeight) => {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = 'red';
-
     stack.forEach((row, rowIndex) => {
         row.forEach((col, colIndex) => {
             if (col === 0) return;
@@ -93,8 +95,6 @@ const drawStack = (canvas, stack, gridWidth, gridHeight) => {
 };
 
 const drawTetrino = (canvas, tetrino, gridWidth, gridHeight) => {
-    if (!tetrino) return;
-
     const ctx = canvas.getContext('2d');
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);

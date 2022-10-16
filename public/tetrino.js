@@ -3,7 +3,7 @@ class Tetrino {
         this.shapes = shapes;
         this.rotation = rotation;
         this.sprite = sprite;
-        this.position = { x: 0, y: 0 };
+        this.position = { x: 3, y: 0 };
     }
 
     get currentShape() {

@@ -1,6 +1,26 @@
-.container {
-    position: relative;
+.tetris {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     height: 100vh;
+}
+
+.canvas-container {
+    height: 800px;
+    width: 400px;
+    position: relative;
+    display: grid;
+    place-content: center;
+}
+
+.controls {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.controls > button:not(:first-child) {
+    margin-top: 10px;
 }
 
 canvas {
@@ -8,5 +28,4 @@ canvas {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    border: 1px solid black;
 }

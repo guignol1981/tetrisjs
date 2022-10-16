@@ -6,13 +6,23 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="style.css" />
         <title>Tetris JS</title>
+        <script type="module" src="tetris.js"></script>
     </head>
     <body>
-        <div class="container">
-            <canvas id="backgroundCanvas" width="400" height="800"></canvas>
-            <canvas id="stackCanvas" width="400" height="800"></canvas>
-            <canvas id="bricksCanvas" width="400" height="800"></canvas>
+        <div class="tetris">
+            <div class="canvas-container">
+                <canvas id="backgroundCanvas" width="400" height="800"></canvas>
+                <canvas id="stackCanvas" width="400" height="800"></canvas>
+                <canvas id="bricksCanvas" width="400" height="800"></canvas>
+            </div>
+            <div class="huds">
+                <span id="score" class="score"></span>
+                <div class="controls">
+                    <button onclick="tetris.start()">Start</button>
+                    <button>Pause</button>
+                    <button onclick="tetris.reset()">Reset</button>
+                </div>
+            </div>
         </div>
-        <script type="module" src="tetris.js"></script>
     </body>
 </html>

@@ -13,6 +13,7 @@ class Tetris {
     activeTetrino = null;
     stack = [];
     tickInMilliseconds = 500;
+    interval = null;
 
     constructor() {
         this.initStack();
@@ -32,10 +33,19 @@ class Tetris {
         this.activeTetrino = this.nextTetrino;
         this.paintTetrino();
 
-        setInterval(() => {
+        this.interval = setInterval(() => {
             this.moveTetrino({ x: 0, y: 1 });
             // debug(this.stack);
         }, this.tickInMilliseconds);
+    }
+
+    reset() {
+        if (this.interval) clearInterval(this.interval);
+        this.initStack();
+        this._nextTetrino = RandomTetrinoFactory();
+        this.paintStack();
+        this.paintTetrino();
+        this.start();
     }
 
     getNextGrid(vector) {
@@ -90,7 +100,21 @@ class Tetris {
     }
 
     rotateTetrino() {
+        const rotationStamp = this.activeTetrino.rotation;
         this.activeTetrino.rotate();
+
+        if (
+            this.activeTetrino.currentShape.some((row, rowIndex) =>
+                row.some(
+                    (col, colIndex) =>
+                        this.getNextGrid({ x: 0, y: 0 })[rowIndex][colIndex] &&
+                        col
+                )
+            )
+        ) {
+            this.activeTetrino.rotation = rotationStamp;
+        }
+
         this.paintTetrino();
     }
 
@@ -137,6 +161,8 @@ class Tetris {
     }
 
     initStack() {
+        this.stack = [];
+
         for (let i = 0; i < GRID_HEIGHT; i++) {
             this.stack.push([]);
 
@@ -152,7 +178,7 @@ class Tetris {
             e.preventDefault();
 
             switch (e.key) {
-                case ' ':
+                case 'ArrowUp':
                     this.rotateTetrino();
                     break;
                 case 'ArrowLeft':
@@ -164,11 +190,13 @@ class Tetris {
                 case 'ArrowDown':
                     this.moveTetrino({ x: 0, y: 1 });
                     break;
-                case 'ArrowUp':
-                    let fall = true;
-                    while (fall) {
-                        fall = this.moveTetrino({ x: 0, y: 1 }) === 1;
-                    }
+                case ' ':
+                    const interval = setInterval(() => {
+                        let fall = this.moveTetrino({ x: 0, y: 1 }) === 1;
+
+                        if (!fall) clearInterval(interval);
+                    }, 30);
+
                     break;
             }
         });
@@ -202,10 +230,6 @@ const debug = (stack) => {
     });
 };
 
-(async () => {
-    await initSprites(backgroundCanvas, GRID_WIDTH, GRID_HEIGHT);
+await initSprites(backgroundCanvas, GRID_WIDTH, GRID_HEIGHT);
 
-    const tetris = new Tetris();
-
-    tetris.start();
-})();
+window.tetris = new Tetris();
