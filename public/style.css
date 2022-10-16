@@ -1,3 +1,8 @@
+body {
+    background: url('https://images.unsplash.com/photo-1520106212299-d99c443e4568?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bW9zY293fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=1000&q=60');
+    background-repeat: none;
+    background-size: cover;
+}
 .tetris {
     display: flex;
     justify-content: center;
@@ -21,9 +26,10 @@
 
 .huds {
     padding: 1rem;
+    background: white;
 }
 
-.controls > button:not(:first-child) {
+.controls > :not(:first-child) {
     margin-top: 10px;
 }
 

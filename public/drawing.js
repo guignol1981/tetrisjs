@@ -11,6 +11,14 @@ const sprites = {
         spriteName: 'shadow_bricks.png',
         image: new Image(),
     },
+    orangeBricks: {
+        spriteName: 'orange_bricks.png',
+        image: new Image(),
+    },
+    pinkBricks: {
+        spriteName: 'pink_bricks.png',
+        image: new Image(),
+    },
     yellowBricks: {
         spriteName: 'yellow_bricks.png',
         image: new Image(),

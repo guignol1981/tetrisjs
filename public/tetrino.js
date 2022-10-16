@@ -134,7 +134,7 @@ const RandomTetrinoFactory = () => {
                 ],
             },
             rotation: 1,
-            sprite: 'yellowBricks',
+            sprite: 'pinkBricks',
         },
         {
             shapes: {
@@ -164,7 +164,7 @@ const RandomTetrinoFactory = () => {
                 ],
             },
             rotation: 0,
-            sprite: 'yellowBricks',
+            sprite: 'orangeBricks',
         },
         {
             shapes: {

@@ -17,15 +17,23 @@ class Tetris {
     nextTetrino = null;
     activeTetrino = null;
     stack = [];
-    tickInMilliseconds = 500;
-    interval = null;
-    score = 0;
+    _score = 0;
+    retardControls = false;
 
     constructor() {
         this.initStack();
         this.initControls();
         this.nextTetrino = RandomTetrinoFactory();
-        document.getElementById('score').innerHTML = this.score;
+        this.score = 0;
+    }
+
+    get tickInMilliseconds() {
+        return 800 - Math.floor(this._score / 5) * 50;
+    }
+
+    set score(value) {
+        this._score = value;
+        document.getElementById('score').innerHTML = this._score;
     }
 
     get activeTetrinoShadowOffset() {
@@ -57,14 +65,23 @@ class Tetris {
         this.activeTetrino = this.getNextTetrino();
         this.paintTetrino();
 
-        this.interval = setInterval(() => {
+        this.startClock();
+    }
+
+    startClock() {
+        const routine = async () => {
             this.moveTetrino({ x: 0, y: 1 });
-            // debug(this.stack);
-        }, this.tickInMilliseconds);
+            setTimeout(() => routine(), this.tickInMilliseconds);
+        };
+        routine();
+    }
+
+    toggleControls() {
+        this.retardControls = !this.retardControls;
     }
 
     reset() {
-        if (this.interval) clearInterval(this.interval);
+        this.score = 0;
         this.initStack();
         this.nextTetrino = RandomTetrinoFactory();
         this.paintStack();
@@ -127,6 +144,7 @@ class Tetris {
             if (vector.y === 1) {
                 this.mergeTetrinoToStack();
             }
+
             return -1;
         }
 
@@ -186,8 +204,7 @@ class Tetris {
 
         const stackLength = this.stack.length;
 
-        this.score += GRID_HEIGHT - stackLength;
-        document.getElementById('score').innerHTML = this.score;
+        this.score = this._score + GRID_HEIGHT - stackLength;
 
         for (let i = 0; i < GRID_HEIGHT - stackLength; i++) {
             const newRow = [];
@@ -219,7 +236,13 @@ class Tetris {
 
             switch (e.key) {
                 case ' ':
-                    this.rotateTetrino();
+                    if (this.retardControls) {
+                        if (e.repeat) return;
+
+                        this.forceDown();
+                    } else {
+                        this.rotateTetrino();
+                    }
                     break;
                 case 'ArrowLeft':
                     this.moveTetrino({ x: -1, y: 0 });
@@ -231,19 +254,29 @@ class Tetris {
                     this.moveTetrino({ x: 0, y: 1 });
                     break;
                 case 'ArrowUp':
-                    if (e.repeat) return;
+                    if (this.retardControls) {
+                        this.rotateTetrino();
+                    } else {
+                        if (e.repeat) return;
 
-                    const interval = setInterval(() => {
-                        let fall = this.moveTetrino({ x: 0, y: 1 }) === 1;
-
-                        if (!fall) clearInterval(interval);
-                    }, 10);
+                        this.forceDown();
+                    }
 
                     break;
             }
 
             e.stopPropagation();
         });
+    }
+
+    forceDown() {
+        const copy = this.activeTetrino;
+
+        const interval = setInterval(() => {
+            let fall = this.moveTetrino({ x: 0, y: 1 }) === 1;
+
+            if (!fall || this.activeTetrino !== copy) clearInterval(interval);
+        }, 10);
     }
 
     paintTetrino() {
