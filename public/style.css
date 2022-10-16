@@ -19,13 +19,20 @@
     flex-direction: column;
 }
 
+.huds {
+    padding: 1rem;
+}
+
 .controls > button:not(:first-child) {
     margin-top: 10px;
 }
 
-canvas {
+.canvas-container > canvas {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+.next {
 }

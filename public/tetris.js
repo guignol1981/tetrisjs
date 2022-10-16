@@ -1,5 +1,10 @@
 import { RandomTetrinoFactory } from './tetrino.js';
-import { drawStack, drawTetrino, initSprites } from './drawing.js';
+import {
+    drawNextTetrino,
+    drawStack,
+    drawTetrino,
+    initSprites,
+} from './drawing.js';
 
 const backgroundCanvas = document.getElementById('backgroundCanvas');
 const bricksCanvas = document.getElementById('bricksCanvas');
@@ -9,24 +14,18 @@ const GRID_HEIGHT = 20;
 const GRID_WIDTH = 10;
 
 class Tetris {
-    _nextTetrino = null;
+    nextTetrino = null;
     activeTetrino = null;
     stack = [];
     tickInMilliseconds = 500;
     interval = null;
+    score = 0;
 
     constructor() {
         this.initStack();
         this.initControls();
-        this._nextTetrino = RandomTetrinoFactory();
-    }
-
-    get nextTetrino() {
-        const stamp = this._nextTetrino;
-
-        this._nextTetrino = RandomTetrinoFactory();
-
-        return stamp;
+        this.nextTetrino = RandomTetrinoFactory();
+        document.getElementById('score').innerHTML = this.score;
     }
 
     get activeTetrinoShadowOffset() {
@@ -55,7 +54,7 @@ class Tetris {
     }
 
     start() {
-        this.activeTetrino = this.nextTetrino;
+        this.activeTetrino = this.getNextTetrino();
         this.paintTetrino();
 
         this.interval = setInterval(() => {
@@ -67,10 +66,20 @@ class Tetris {
     reset() {
         if (this.interval) clearInterval(this.interval);
         this.initStack();
-        this._nextTetrino = RandomTetrinoFactory();
+        this.nextTetrino = RandomTetrinoFactory();
         this.paintStack();
         this.paintTetrino();
         this.start();
+    }
+
+    getNextTetrino() {
+        const stamp = this.nextTetrino;
+
+        this.nextTetrino = RandomTetrinoFactory();
+
+        drawNextTetrino(this.nextTetrino);
+
+        return stamp;
     }
 
     getNextGrid(vector, offset = 0) {
@@ -166,7 +175,7 @@ class Tetris {
             });
         });
 
-        this.activeTetrino = this.nextTetrino;
+        this.activeTetrino = this.getNextTetrino();
         this.clearRows();
         this.paintStack();
         this.paintTetrino();
@@ -176,6 +185,9 @@ class Tetris {
         this.stack = this.stack.filter((row) => !row.every((s) => s === 1));
 
         const stackLength = this.stack.length;
+
+        this.score += GRID_HEIGHT - stackLength;
+        document.getElementById('score').innerHTML = this.score;
 
         for (let i = 0; i < GRID_HEIGHT - stackLength; i++) {
             const newRow = [];
@@ -219,14 +231,18 @@ class Tetris {
                     this.moveTetrino({ x: 0, y: 1 });
                     break;
                 case 'ArrowUp':
+                    if (e.repeat) return;
+
                     const interval = setInterval(() => {
                         let fall = this.moveTetrino({ x: 0, y: 1 }) === 1;
 
                         if (!fall) clearInterval(interval);
-                    }, 30);
+                    }, 10);
 
                     break;
             }
+
+            e.stopPropagation();
         });
     }
 

@@ -34,6 +34,7 @@ const sprites = {
 };
 
 let backgroundImage = new Image();
+const nextTetrino = document.getElementById('next');
 
 const initSprites = async (backgroundCanvas, gridWidth, gridHeight) => {
     backgroundCanvas.height;
@@ -98,7 +99,6 @@ const drawTetrino = (canvas, tetrino, shadowOffset, gridWidth, gridHeight) => {
     const ctx = canvas.getContext('2d');
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = tetrino.color;
 
     tetrino.currentShape.forEach((row, rowIndex) => {
         row.forEach((col, colIndex) => {
@@ -112,6 +112,7 @@ const drawTetrino = (canvas, tetrino, shadowOffset, gridWidth, gridHeight) => {
                     canvas.width / gridWidth,
                     canvas.height / gridHeight
                 );
+
                 ctx.drawImage(
                     sprites.shadowBricks.image,
                     (colIndex * canvas.width) / gridWidth +
@@ -121,6 +122,27 @@ const drawTetrino = (canvas, tetrino, shadowOffset, gridWidth, gridHeight) => {
                         (shadowOffset * canvas.height) / gridHeight,
                     canvas.width / gridWidth,
                     canvas.height / gridHeight
+                );
+            }
+        });
+    });
+};
+
+const drawNextTetrino = (tetrino) => {
+    const nextCanvas = document.getElementById('nextCanvas');
+    const ctx = nextCanvas.getContext('2d');
+
+    ctx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+
+    tetrino.currentShape.forEach((row, rowIndex) => {
+        row.forEach((col, colIndex) => {
+            if (!!col) {
+                ctx.drawImage(
+                    sprites[tetrino.sprite].image,
+                    colIndex * (nextCanvas.width / tetrino.width),
+                    rowIndex * (nextCanvas.height / tetrino.height),
+                    nextCanvas.width / tetrino.width,
+                    nextCanvas.height / tetrino.height
                 );
             }
         });
@@ -137,4 +159,12 @@ const clear = (canvas) => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 };
 
-export { drawGrid, drawStack, drawTetrino, clear, initSprites, sprites };
+export {
+    drawGrid,
+    drawNextTetrino,
+    drawStack,
+    drawTetrino,
+    clear,
+    initSprites,
+    sprites,
+};
