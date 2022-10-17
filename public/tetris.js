@@ -24,6 +24,7 @@ class Tetris {
     stack = [];
     lines = 0;
     pause = true;
+    activeClock = null;
 
     constructor() {
         this.initStack();
@@ -82,6 +83,8 @@ class Tetris {
     }
 
     startClock() {
+        if (this.activeClock) clearTimeout(this.activeClock);
+
         const routine = async () => {
             if (this.pause) return;
 
@@ -89,7 +92,10 @@ class Tetris {
 
             this.printScore();
             this.printLevel();
-            setTimeout(() => routine(), this.tickInMilliseconds);
+            this.activeClock = setTimeout(
+                () => routine(),
+                this.tickInMilliseconds
+            );
         };
         routine();
     }
@@ -301,22 +307,27 @@ class Tetris {
                     this.forceDown();
                     break;
                 case 'Control':
-                    if (this.activeTetrino.saved) return;
-
-                    this.activeTetrino.save();
-                    const stamp = this.savedTetrino;
-
-                    this.savedTetrino = this.activeTetrino;
-                    this.activeTetrino = stamp || this.getNextTetrino();
-
-                    this.activeTetrino.reset();
-
-                    drawSavedTetrino(this.savedTetrino);
+                    if (e.repeat) return;
+                    this.save();
                     break;
             }
 
             e.stopPropagation();
         });
+    }
+
+    save() {
+        if (this.activeTetrino.saved) return;
+
+        this.activeTetrino.save();
+        const stamp = this.savedTetrino;
+
+        this.savedTetrino = this.activeTetrino;
+        this.activeTetrino = stamp || this.getNextTetrino();
+
+        this.activeTetrino.reset();
+        this.startClock();
+        drawSavedTetrino(this.savedTetrino);
     }
 
     forceDown() {
