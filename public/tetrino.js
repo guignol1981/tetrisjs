@@ -1,6 +1,7 @@
 class Tetrino {
     constructor(shapes, rotation, sprite) {
         this.shapes = shapes;
+        this.initialRotation = rotation;
         this.rotation = rotation;
         this.sprite = sprite;
         this.position = { x: 3, y: 0 };
@@ -16,6 +17,11 @@ class Tetrino {
 
     get height() {
         return this.shapes[0].length;
+    }
+
+    reset() {
+        this.rotation = this.initialRotation;
+        this.position = { x: 3, y: 0 };
     }
 
     rotate() {

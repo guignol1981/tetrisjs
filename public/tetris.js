@@ -1,6 +1,7 @@
 import { RandomTetrinoFactory } from './tetrino.js';
 import {
     drawNextTetrino,
+    drawSavedTetrino,
     drawStack,
     drawTetrino,
     initSprites,
@@ -17,6 +18,7 @@ const SCORE_LEVELS = [0, 5000, 10000, 20000, 35000, 50000, 100000, Infinity];
 const SPEED_LEVELS = [1000, 900, 800, 700, 600, 500, 400, 300, 200];
 class Tetris {
     nextTetrino = null;
+    savedTetrino = null;
     activeTetrino = null;
     bricksCount = 0;
     stack = [];
@@ -295,7 +297,18 @@ class Tetris {
                     this.moveTetrino({ x: 0, y: 1 });
                     break;
                 case 'ArrowUp':
+                    if (e.repeat) return;
                     this.forceDown();
+                    break;
+                case 'Control':
+                    const stamp = this.savedTetrino;
+
+                    this.savedTetrino = this.activeTetrino;
+                    this.activeTetrino = stamp || this.getNextTetrino();
+
+                    this.activeTetrino.reset();
+
+                    drawSavedTetrino(this.savedTetrino);
                     break;
             }
 

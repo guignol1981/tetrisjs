@@ -157,6 +157,27 @@ const drawNextTetrino = (tetrino) => {
     });
 };
 
+const drawSavedTetrino = (tetrino) => {
+    const savedCanvas = document.getElementById('savedCanvas');
+    const ctx = savedCanvas.getContext('2d');
+
+    ctx.clearRect(0, 0, savedCanvas.width, savedCanvas.height);
+
+    tetrino.currentShape.forEach((row, rowIndex) => {
+        row.forEach((col, colIndex) => {
+            if (!!col) {
+                ctx.drawImage(
+                    sprites[tetrino.sprite].image,
+                    colIndex * (savedCanvas.width / tetrino.width),
+                    rowIndex * (savedCanvas.height / tetrino.height),
+                    savedCanvas.width / tetrino.width,
+                    savedCanvas.height / tetrino.height
+                );
+            }
+        });
+    });
+};
+
 const drawGrid = (canvas) => {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(backgroundImage, 0, 0);
@@ -170,6 +191,7 @@ const clear = (canvas) => {
 export {
     drawGrid,
     drawNextTetrino,
+    drawSavedTetrino,
     drawStack,
     drawTetrino,
     clear,
