@@ -12,28 +12,32 @@ const stackCanvas = document.getElementById('stackCanvas');
 
 const GRID_HEIGHT = 20;
 const GRID_WIDTH = 10;
+const SCORE_LEVELS = [0, 1000, 3000, 50000, 10000];
 
 class Tetris {
     nextTetrino = null;
     activeTetrino = null;
+    bricksCount = 0;
     stack = [];
-    _score = 0;
-    retardControls = false;
+    lines = 0;
+    pause = true;
 
     constructor() {
         this.initStack();
         this.initControls();
         this.nextTetrino = RandomTetrinoFactory();
-        this.score = 0;
+    }
+
+    get level() {
+        return SCORE_LEVELS.findIndex((s) => this.score > s) + 1;
     }
 
     get tickInMilliseconds() {
-        return 800 - Math.floor(this._score / 5) * 50;
+        return Math.max(300, 1000 - this.level);
     }
 
-    set score(value) {
-        this._score = value;
-        document.getElementById('score').innerHTML = this._score;
+    get score() {
+        return this.bricksCount * 50 + this.lines * 100;
     }
 
     get activeTetrinoShadowOffset() {
@@ -46,9 +50,11 @@ class Tetris {
                 currentShape.some((row, rowIndex) =>
                     row.some(
                         (col, colIndex) =>
-                            this.getNextGrid({ x: 0, y: 1 }, offset)[rowIndex][
-                                colIndex
-                            ] && col
+                            this.getNextGrid(
+                                { x: 0, y: 1 },
+                                this.activeTetrino,
+                                offset
+                            )[rowIndex][colIndex] && col
                     )
                 )
             ) {
@@ -64,33 +70,55 @@ class Tetris {
     start() {
         this.activeTetrino = this.getNextTetrino();
         this.paintTetrino();
-
+        this.pause = false;
         this.startClock();
     }
 
     startClock() {
         const routine = async () => {
+            if (this.pause) return;
+
             this.moveTetrino({ x: 0, y: 1 });
+
+            this.printScore();
+            this.printLevel();
             setTimeout(() => routine(), this.tickInMilliseconds);
         };
         routine();
     }
 
-    toggleControls() {
-        this.retardControls = !this.retardControls;
+    reset() {
+        this.stop();
+        this.start();
     }
 
-    reset() {
-        this.score = 0;
+    stop() {
+        this.pause = true;
+        this.bricksCount = 0;
+        this.lines = 0;
         this.initStack();
-        this.nextTetrino = RandomTetrinoFactory();
         this.paintStack();
         this.paintTetrino();
-        this.start();
+    }
+
+    printScore() {
+        document.getElementById('score').innerHTML = this.score;
+    }
+
+    printLevel() {
+        document.getElementById('level').innerHTML = this.level;
     }
 
     getNextTetrino() {
         const stamp = this.nextTetrino;
+
+        if (this.checkEndGame(stamp)) {
+            if (confirm(`Game over, try again? Your score: ${this.score}`)) {
+                this.reset();
+            } else {
+                this.stop();
+            }
+        }
 
         this.nextTetrino = RandomTetrinoFactory();
 
@@ -99,31 +127,38 @@ class Tetris {
         return stamp;
     }
 
-    getNextGrid(vector, offset = 0) {
+    checkEndGame(newTetrino) {
+        return newTetrino.currentShape.some((row, rowIndex) =>
+            row.some(
+                (col, colIndex) =>
+                    this.getNextGrid({ x: 0, y: 0 }, newTetrino)[rowIndex][
+                        colIndex
+                    ] && col
+            )
+        );
+    }
+
+    getNextGrid(vector, tetrino, offset = 0) {
         const grid = [];
 
-        for (let i = 0; i < this.activeTetrino.height; i++) {
+        for (let i = 0; i < tetrino.height; i++) {
             grid.push([]);
 
-            for (let j = 0; j < this.activeTetrino.width; j++) {
+            for (let j = 0; j < tetrino.width; j++) {
                 if (
                     typeof this.stack[
-                        this.activeTetrino.position.y + vector.y + offset + i
+                        tetrino.position.y + vector.y + offset + i
                     ] === 'undefined' ||
                     typeof this.stack[
-                        this.activeTetrino.position.y + vector.y + offset + i
-                    ][this.activeTetrino.position.x + vector.x + j] ===
-                        'undefined'
+                        tetrino.position.y + vector.y + offset + i
+                    ][tetrino.position.x + vector.x + j] === 'undefined'
                 ) {
                     grid[i].push(1);
                 } else {
                     grid[i].push(
-                        this.stack[
-                            this.activeTetrino.position.y +
-                                vector.y +
-                                offset +
-                                i
-                        ][this.activeTetrino.position.x + vector.x + j]
+                        this.stack[tetrino.position.y + vector.y + offset + i][
+                            tetrino.position.x + vector.x + j
+                        ]
                     );
                 }
             }
@@ -137,7 +172,9 @@ class Tetris {
             this.activeTetrino.currentShape.some((row, rowIndex) =>
                 row.some(
                     (col, colIndex) =>
-                        this.getNextGrid(vector)[rowIndex][colIndex] && col
+                        this.getNextGrid(vector, this.activeTetrino)[rowIndex][
+                            colIndex
+                        ] && col
                 )
             )
         ) {
@@ -162,8 +199,9 @@ class Tetris {
             this.activeTetrino.currentShape.some((row, rowIndex) =>
                 row.some(
                     (col, colIndex) =>
-                        this.getNextGrid({ x: 0, y: 0 })[rowIndex][colIndex] &&
-                        col
+                        this.getNextGrid({ x: 0, y: 0 }, this.activeTetrino)[
+                            rowIndex
+                        ][colIndex] && col
                 )
             )
         ) {
@@ -174,6 +212,10 @@ class Tetris {
     }
 
     mergeTetrinoToStack() {
+        this.bricksCount += this.activeTetrino.currentShape
+            .flat()
+            .reduce((a, c) => (a += c), 0);
+
         this.activeTetrino.currentShape.forEach((row, rowIndex) => {
             row.forEach((col, colIndex) => {
                 if (
@@ -204,7 +246,7 @@ class Tetris {
 
         const stackLength = this.stack.length;
 
-        this.score = this._score + GRID_HEIGHT - stackLength;
+        this.lines += GRID_HEIGHT - stackLength;
 
         for (let i = 0; i < GRID_HEIGHT - stackLength; i++) {
             const newRow = [];
@@ -236,13 +278,7 @@ class Tetris {
 
             switch (e.key) {
                 case ' ':
-                    if (this.retardControls) {
-                        if (e.repeat) return;
-
-                        this.forceDown();
-                    } else {
-                        this.rotateTetrino();
-                    }
+                    this.rotateTetrino();
                     break;
                 case 'ArrowLeft':
                     this.moveTetrino({ x: -1, y: 0 });
@@ -254,14 +290,7 @@ class Tetris {
                     this.moveTetrino({ x: 0, y: 1 });
                     break;
                 case 'ArrowUp':
-                    if (this.retardControls) {
-                        this.rotateTetrino();
-                    } else {
-                        if (e.repeat) return;
-
-                        this.forceDown();
-                    }
-
+                    this.forceDown();
                     break;
             }
 
