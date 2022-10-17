@@ -12,8 +12,9 @@ const stackCanvas = document.getElementById('stackCanvas');
 
 const GRID_HEIGHT = 20;
 const GRID_WIDTH = 10;
-const SCORE_LEVELS = [0, 1000, 3000, 50000, 10000];
-
+const SCORE_LEVELS = [0, 5000, 10000, 20000, 35000, 50000, 100000, Infinity];
+// const SCORE_LEVELS = [0, 500, 1000, 2000, 3500, 5000, 10000, Infinity];
+const SPEED_LEVELS = [1000, 900, 800, 700, 600, 500, 400, 300, 200];
 class Tetris {
     nextTetrino = null;
     activeTetrino = null;
@@ -29,11 +30,15 @@ class Tetris {
     }
 
     get level() {
-        return SCORE_LEVELS.findIndex((s) => this.score > s) + 1;
+        return (
+            SCORE_LEVELS.findIndex(
+                (s, i) => this.score >= s && SCORE_LEVELS[i + 1] > this.score
+            ) + 1
+        );
     }
 
     get tickInMilliseconds() {
-        return Math.max(300, 1000 - this.level);
+        return SPEED_LEVELS[this.level - 1];
     }
 
     get score() {
