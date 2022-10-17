@@ -301,6 +301,9 @@ class Tetris {
                     this.forceDown();
                     break;
                 case 'Control':
+                    if (this.activeTetrino.saved) return;
+
+                    this.activeTetrino.save();
                     const stamp = this.savedTetrino;
 
                     this.savedTetrino = this.activeTetrino;

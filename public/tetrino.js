@@ -5,6 +5,7 @@ class Tetrino {
         this.rotation = rotation;
         this.sprite = sprite;
         this.position = { x: 3, y: 0 };
+        this.saved = false;
     }
 
     get currentShape() {
@@ -17,6 +18,10 @@ class Tetrino {
 
     get height() {
         return this.shapes[0].length;
+    }
+
+    save() {
+        this.saved = true;
     }
 
     reset() {
